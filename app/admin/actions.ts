@@ -2,7 +2,14 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin010203';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin010203';
+
+export async function checkPasswordAction(password: string) {
+  if (password !== ADMIN_PASSWORD) {
+    throw new Error('Acesso negado. Senha incorreta.');
+  }
+  return true;
+}
 
 async function getAdminSupabaseClient(password: string) {
   if (password !== ADMIN_PASSWORD) {

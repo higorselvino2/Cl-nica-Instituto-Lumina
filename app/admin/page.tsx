@@ -3,6 +3,11 @@
 import { useState, useEffect } from 'react';
 import { supabase, hasValidSupabaseEnv } from '@/lib/supabase';
 import { User, Phone, Mail, FileText, Settings, Play, LogOut, Loader2, Plus, Edit, Trash2, AlertTriangle, RefreshCw, MessageSquare } from 'lucide-react';
+import {
+  checkPasswordAction, fetchLeadsDataAction, deleteLeadAction,
+  fetchPatientsDataAction, deletePatientAction, 
+  updatePatientAction, createPatientAction
+} from './actions';
 
 interface Patient {
   id: string;
@@ -65,15 +70,16 @@ export default function AdminPage() {
     }
   }, [activeTab]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin010203') {
+    try {
+      await checkPasswordAction(password);
       setIsAuthenticated(true);
       sessionStorage.setItem('admin_auth', 'true');
       sessionStorage.setItem('admin_pass', password);
       fetchData(password);
-    } else {
-      setError('Senha incorreta.');
+    } catch (err: any) {
+      setError(err.message || 'Senha incorreta.');
     }
   };
 
@@ -89,29 +95,21 @@ export default function AdminPage() {
     setCrudError('');
     const pass = overridePassword || password || sessionStorage.getItem('admin_pass') || '';
     
-    // Quick password check
-    if (pass !== 'admin010203') {
+    try {
+      await checkPasswordAction(pass);
+    } catch (err) {
        setError('Sessão expirada ou senha incorreta.');
        setIsAuthenticated(false);
+       setLoading(false);
        return;
     }
 
     try {
       if (activeTab === 'patients') {
-        const { data, error } = await supabase
-          .from('patients')
-          .select('*')
-          .order('date', { ascending: false });
-
-        if (error) throw error;
+        const data = await fetchPatientsDataAction(pass);
         setPatients(data || []);
       } else {
-        const { data, error } = await supabase
-          .from('leads')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
+        const data = await fetchLeadsDataAction(pass);
         setLeads(data || []);
       }
     } catch (err: any) {
@@ -133,30 +131,24 @@ export default function AdminPage() {
     setCrudSuccess('');
     
     try {
+      const pass = password || sessionStorage.getItem('admin_pass') || '';
       if (isEditing && currentPatient.id) {
-        const { error } = await supabase
-          .from('patients')
-          .update({
-            name: currentPatient.name,
-            phone: currentPatient.phone,
-            email: currentPatient.email,
-            notes: currentPatient.notes,
-            appointment_date: currentPatient.appointment_date || null
-          })
-          .eq('id', currentPatient.id);
-        if (error) throw error;
+        await updatePatientAction(pass, currentPatient.id, {
+          name: currentPatient.name,
+          phone: currentPatient.phone,
+          email: currentPatient.email,
+          notes: currentPatient.notes,
+          appointment_date: currentPatient.appointment_date || null
+        });
         setCrudSuccess('Paciente atualizado com sucesso!');
       } else {
-        const { error } = await supabase
-          .from('patients')
-          .insert([{
-            name: currentPatient.name,
-            phone: currentPatient.phone,
-            email: currentPatient.email,
-            notes: currentPatient.notes,
-            appointment_date: currentPatient.appointment_date || null
-          }]);
-        if (error) throw error;
+        await createPatientAction(pass, {
+          name: currentPatient.name,
+          phone: currentPatient.phone,
+          email: currentPatient.email,
+          notes: currentPatient.notes,
+          appointment_date: currentPatient.appointment_date || null
+        });
         setCrudSuccess('Paciente criado com sucesso!');
       }
       setIsEditing(false);
@@ -179,8 +171,8 @@ export default function AdminPage() {
     setCrudError('');
     setCrudSuccess('');
     try {
-      const { error } = await supabase.from('patients').delete().eq('id', id);
-      if (error) throw error;
+      const pass = password || sessionStorage.getItem('admin_pass') || '';
+      await deletePatientAction(pass, id);
       setCrudSuccess('Paciente excluído com sucesso!');
       fetchData();
       setTimeout(() => setCrudSuccess(''), 3000);
@@ -193,8 +185,8 @@ export default function AdminPage() {
     setCrudError('');
     setCrudSuccess('');
     try {
-      const { error } = await supabase.from('leads').delete().eq('id', id);
-      if (error) throw error;
+      const pass = password || sessionStorage.getItem('admin_pass') || '';
+      await deleteLeadAction(pass, id);
       setCrudSuccess('Lead excluído com sucesso!');
       fetchData();
       setTimeout(() => setCrudSuccess(''), 3000);
