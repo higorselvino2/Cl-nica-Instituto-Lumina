@@ -40,6 +40,10 @@ export default function AdminPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
   
+  const [showAgentModal, setShowAgentModal] = useState(false);
+  const [agentPhone, setAgentPhone] = useState("");
+  const [agentActivating, setAgentActivating] = useState(false);
+
   // CRUD states
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -88,6 +92,29 @@ export default function AdminPage() {
     sessionStorage.removeItem('admin_auth');
     sessionStorage.removeItem('admin_pass');
     setPassword('');
+  };
+
+  const handleActivateAgent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agentPhone) return;
+    
+    const cleanPhone = agentPhone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      alert("Número de telefone inválido.");
+      return;
+    }
+
+    setAgentActivating(true);
+    try {
+      await fetch(`https://webhook.higorselvino.art/webhook/reativar?telefone=${cleanPhone}`);
+      alert(`Agente ativado com sucesso para o número ${cleanPhone}!`);
+      setShowAgentModal(false);
+      setAgentPhone("");
+    } catch (err) {
+      alert("Erro ao ativar o agente. Tente novamente.");
+    } finally {
+      setAgentActivating(false);
+    }
   };
 
   async function fetchData(overridePassword?: string) {
@@ -268,13 +295,68 @@ export default function AdminPage() {
             </h1>
             <p className="text-lux-text-s mt-1 text-sm font-light">Gestão de contatos e ferramentas de automação</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-lux-text-s hover:text-white transition-colors text-sm border border-lux-border px-4 py-2 rounded-md hover:bg-white/5"
-          >
-            <LogOut className="w-4 h-4" /> Sair
-          </button>
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <button
+              onClick={() => setShowAgentModal(true)}
+              className="flex-1 sm:flex-none justify-center flex items-center gap-2 bg-lux-accent text-black px-5 py-2.5 rounded-md font-medium text-sm hover:bg-lux-accent/90 transition-colors shadow-[0_0_15px_rgba(197,160,89,0.3)] hover:shadow-[0_0_25px_rgba(197,160,89,0.5)]"
+            >
+              <Play fill="currentColor" className="w-4 h-4" /> Ativar Agente
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-2 text-lux-text-s hover:text-white transition-colors text-sm border border-lux-border px-4 py-2.5 rounded-md hover:bg-white/5"
+            >
+              <LogOut className="w-4 h-4" /> Sair
+            </button>
+          </div>
         </header>
+
+        {/* Agent Activation Modal */}
+        {showAgentModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div className="bg-[#1A2228] p-8 rounded-[20px] border border-lux-border w-full max-w-md shadow-2xl relative">
+              <h3 className="text-2xl font-serif text-white mb-2">Reativar Agente AI</h3>
+              <p className="text-lux-text-s text-sm mb-6">Insira o número do telefone com DDD para reativar o agente de IA WhatsApp.</p>
+              
+              <form onSubmit={handleActivateAgent} className="space-y-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-lux-text-s mb-2">Telefone (com DDD)</label>
+                  <input
+                    type="text"
+                    value={agentPhone}
+                    onChange={(e) => setAgentPhone(e.target.value)}
+                    placeholder="Ex: 5511999999999"
+                    required
+                    className="w-full bg-[#0a0f12] border border-lux-border rounded-md px-4 py-3 text-white focus:outline-none focus:border-lux-accent transition-colors"
+                  />
+                </div>
+                
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAgentModal(false)}
+                    className="flex-1 border border-lux-border text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-white/5 transition-colors"
+                    disabled={agentActivating}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={agentActivating}
+                    className="flex-1 bg-lux-accent text-black px-4 py-3 rounded-md text-sm font-medium hover:bg-lux-accent/90 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {agentActivating ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Play fill="currentColor" className="w-4 h-4" />
+                    )}
+                    {agentActivating ? 'Ativando...' : 'Reativar Agente'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Supabase Config Warning */}
         {!hasValidSupabaseEnv() && (
