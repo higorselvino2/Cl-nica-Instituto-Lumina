@@ -19,7 +19,7 @@ export default function Home() {
       <section className="relative h-[90vh] min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://picsum.photos/seed/dentist1/1920/1080"
+            src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=1920&auto=format&fit=crop"
             alt="Consultório odontológico de alto padrão"
             fill
             sizes="100vw"
@@ -117,7 +117,7 @@ export default function Home() {
           </FadeIn>
           <FadeIn delay={0.2} className="relative aspect-square md:aspect-[4/5] rounded-[20px] overflow-hidden shadow-2xl border border-lux-border">
             <Image
-              src="https://picsum.photos/seed/dentist2/800/800"
+              src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=800&auto=format&fit=crop"
               alt="Paciente sorrindo com conforto no consultório"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -144,17 +144,17 @@ export default function Home() {
             {
               title: "Implantes de Carga Imediata",
               desc: "Recupere a segurança para mastigar em tempo recorde. Usamos implantes premium para resultados previsíveis e definitivos.",
-              imageUrl: "https://picsum.photos/seed/dentist3/400/300"
+              imageUrl: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?q=80&w=400&auto=format&fit=crop"
             },
             {
               title: "Lentes de Contato Dental",
               desc: "Sorriso perfeitamente alinhado, branco e com aspecto natural. Facetas ultrafinas desenhadas digitalmente para o seu rosto.",
-              imageUrl: "https://picsum.photos/seed/dentist2/400/300"
+              imageUrl: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=400&auto=format&fit=crop"
             },
             {
               title: "Clareamento a Laser",
               desc: "Resultados visíveis e seguros já na primeira sessão. Sensibilidade minimizada com nosso protocolo exclusivo de proteção.",
-              imageUrl: "https://picsum.photos/seed/dentist4/400/300"
+              imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&auto=format&fit=crop"
             }
           ].map((service, i) => (
             <FadeIn key={i} delay={i * 0.1} className="group relative bg-lux-card p-8 md:p-10 transition-all duration-500 hover:shadow-[0_10px_30px_rgba(197,160,89,0.1)] hover:-translate-y-2 border border-lux-border rounded-[15px]">
@@ -187,7 +187,7 @@ export default function Home() {
           <FadeIn className="order-2 md:order-1 relative aspect-[4/3] w-full">
             <div className="absolute inset-0 bg-lux-accent/10 translate-x-4 translate-y-4 rounded-[20px]"></div>
             <Image
-              src="https://picsum.photos/seed/dentist5/800/600"
+              src="https://images.unsplash.com/photo-1629909615184-74f495363b67?q=80&w=800&auto=format&fit=crop"
               alt="Tecnologia Odontológica Avançada"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -229,7 +229,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <FadeIn delay={0.1} className="relative aspect-square rounded-[15px] overflow-hidden group">
               <Image 
-                src="https://picsum.photos/seed/dentist6/600/600" 
+                src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600&auto=format&fit=crop" 
                 alt="Recepção" 
                 fill 
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -242,7 +242,7 @@ export default function Home() {
             </FadeIn>
             <FadeIn delay={0.2} className="relative aspect-square rounded-[15px] overflow-hidden group">
               <Image 
-                src="https://picsum.photos/seed/dentist7/600/600" 
+                src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=600&auto=format&fit=crop" 
                 alt="Sala de Atendimento" 
                 fill 
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -255,7 +255,7 @@ export default function Home() {
             </FadeIn>
             <FadeIn delay={0.3} className="relative aspect-square rounded-[15px] overflow-hidden group md:hidden lg:block">
               <Image 
-                src="https://picsum.photos/seed/dentist8/600/600" 
+                src="https://images.unsplash.com/photo-1581056771107-157ce7bcbce8?q=80&w=600&auto=format&fit=crop" 
                 alt="Tecnologia" 
                 fill 
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -277,7 +277,7 @@ export default function Home() {
             <FadeIn>
               <div className="relative aspect-[3/4] w-full rounded-[15px] overflow-hidden border border-lux-border">
                 <Image
-                  src="https://picsum.photos/seed/dentist9/600/800"
+                  src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=600&auto=format&fit=crop"
                   alt="Diretor Técnico"
                   fill
                   sizes="(max-width: 768px) 100vw, 40vw"
