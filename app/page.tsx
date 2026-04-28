@@ -255,15 +255,15 @@ export default function Home() {
             </FadeIn>
             <FadeIn delay={0.3} className="relative aspect-square rounded-[15px] overflow-hidden group md:hidden lg:block">
               <Image 
-                src="https://images.unsplash.com/photo-1581056771107-157ce7bcbce8?q=80&w=600&auto=format&fit=crop" 
-                alt="Tecnologia" 
+                src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop" 
+                alt="Sala VIP de Recuperação" 
                 fill 
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-110" 
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
-                <h4 className="text-white font-serif text-xl border-b border-lux-accent/50 pb-2">Estúdio Fotográfico 3D</h4>
+                <h4 className="text-white font-serif text-xl border-b border-lux-accent/50 pb-2">Sala de Recuperação</h4>
               </div>
             </FadeIn>
           </div>
