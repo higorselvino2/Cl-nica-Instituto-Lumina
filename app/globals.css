@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --color-lux-bg: #0A0F12;
+  --color-lux-bg-grad: #1A2228;
+  --color-lux-accent: #C5A059;
+  --color-lux-text-p: #E0E0E0;
+  --color-lux-text-s: #A0A0A0;
+  --color-lux-card: rgba(255, 255, 255, 0.03);
+  --color-lux-border: rgba(197, 160, 89, 0.2);
+}
