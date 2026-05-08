@@ -17,6 +17,7 @@ interface Patient {
   notes: string;
   date: string;
   appointment_date?: string | null;
+  appointment_time?: string | null;
 }
 
 interface Lead {
@@ -55,14 +56,6 @@ export default function AdminPage() {
   // Filter state
   const [filterAppointment, setFilterAppointment] = useState<'all' | 'today' | 'with' | 'without'>('all');
   const [sortName, setSortName] = useState<'none' | 'asc' | 'desc'>('none');
-
-  const formatForInput = (isoString?: string | null) => {
-    if (!isoString) return '';
-    const d = new Date(isoString);
-    if (isNaN(d.getTime())) return '';
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  };
 
   useEffect(() => {
     const authStatus = sessionStorage.getItem('admin_auth');
@@ -165,7 +158,8 @@ export default function AdminPage() {
           phone: currentPatient.phone,
           email: currentPatient.email,
           notes: currentPatient.notes,
-          appointment_date: currentPatient.appointment_date || null
+          appointment_date: currentPatient.appointment_date || null,
+          appointment_time: currentPatient.appointment_time || null
         });
         setCrudSuccess('Paciente atualizado com sucesso!');
       } else {
@@ -174,7 +168,8 @@ export default function AdminPage() {
           phone: currentPatient.phone,
           email: currentPatient.email,
           notes: currentPatient.notes,
-          appointment_date: currentPatient.appointment_date || null
+          appointment_date: currentPatient.appointment_date || null,
+          appointment_time: currentPatient.appointment_time || null
         });
         setCrudSuccess('Paciente criado com sucesso!');
       }
@@ -229,10 +224,24 @@ export default function AdminPage() {
     if (filterAppointment === 'today') {
       if (!p.appointment_date) return false;
       const today = new Date();
-      const ptDate = new Date(p.appointment_date);
-      return today.getFullYear() === ptDate.getFullYear() &&
-             today.getMonth() === ptDate.getMonth() &&
-             today.getDate() === ptDate.getDate();
+      
+      let ptDate = p.appointment_date;
+      if (ptDate.includes('T')) {
+        if (!p.appointment_time) {
+          const d = new Date(ptDate);
+          if (!isNaN(d.getTime())) {
+            const pad = (n: number) => String(n).padStart(2,'0');
+            ptDate = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+          } else {
+            ptDate = ptDate.split('T')[0];
+          }
+        } else {
+          ptDate = ptDate.split('T')[0];
+        }
+      }
+      
+      const tD = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+      return ptDate === tD;
     }
     return true;
   });
@@ -509,14 +518,25 @@ export default function AdminPage() {
                     className="w-full bg-[#0a0f12] border border-lux-border rounded-md px-4 py-2 text-white focus:outline-none focus:border-lux-accent"
                   />
                 </div>
-                <div className="md:col-span-1">
-                  <label className="block text-xs uppercase text-lux-text-s mb-1">Data/Hora Agendamento (opcional)</label>
-                  <input
-                    type="datetime-local"
-                    value={formatForInput(currentPatient.appointment_date)}
-                    onChange={(e) => setCurrentPatient({...currentPatient, appointment_date: e.target.value ? new Date(e.target.value).toISOString() : null})}
-                    className="w-full bg-[#0a0f12] border border-lux-border rounded-md px-4 py-2 text-white focus:outline-none focus:border-lux-accent"
-                  />
+                <div className="md:col-span-1 flex gap-2">
+                  <div className="flex-1">
+                    <label className="block text-xs uppercase text-lux-text-s mb-1">Data Agendamento</label>
+                    <input
+                      type="date"
+                      value={currentPatient.appointment_date || ''}
+                      onChange={(e) => setCurrentPatient({...currentPatient, appointment_date: e.target.value})}
+                      className="w-full bg-[#0a0f12] border border-lux-border rounded-md px-4 py-2 text-white focus:outline-none focus:border-lux-accent"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs uppercase text-lux-text-s mb-1">Hora</label>
+                    <input
+                      type="time"
+                      value={currentPatient.appointment_time || ''}
+                      onChange={(e) => setCurrentPatient({...currentPatient, appointment_time: e.target.value})}
+                      className="w-full bg-[#0a0f12] border border-lux-border rounded-md px-4 py-2 text-white focus:outline-none focus:border-lux-accent"
+                    />
+                  </div>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-xs uppercase text-lux-text-s mb-1">Observações do Atendimento</label>
@@ -583,11 +603,12 @@ export default function AdminPage() {
                                 <li>phone (text)</li>
                                 <li>email (text, nullable)</li>
                                 <li>notes (text, nullable)</li>
-                                <li>appointment_date (timestamptz, nullable)</li>
+                                <li>appointment_date (text ou date, nullable)</li>
+                                <li>appointment_time (text, nullable) - Ex: "14:00"</li>
                                 <li>date (timestamptz)</li>
                               </ul>
                               <p className="mt-2 text-yellow-500/80">
-                                <b>Importante:</b> Para a edição e visualização de datas funcionarem corretamente, adicione ou renomeie a coluna de agendamentos para <code>appointment_date</code> do tipo <code>timestamp with time zone</code> (ou <code>timestamptz</code>) no Supabase. Se a tabela não existir, os cadastros vão dar erro!
+                                <b>Importante:</b> O sistema agora usa a data e horário em campos separados (<code>appointment_date</code> e <code>appointment_time</code>) para evitar problemas de fuso horário. Atualize sua tabela no Supabase.
                               </p>
                             </div>
                           </td>
@@ -615,7 +636,33 @@ export default function AdminPage() {
                             <td className="py-4 px-4 text-xs text-lux-text-s">
                               {p.appointment_date ? (
                                 <span className="bg-lux-accent/20 text-lux-accent px-2 py-1 rounded-md border border-lux-accent/30 whitespace-nowrap">
-                                  {new Date(p.appointment_date).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                                  {(() => {
+                                    let dateStr = p.appointment_date;
+                                    let timeStr = p.appointment_time;
+                                    
+                                    if (dateStr.includes('T')) {
+                                      if (!timeStr) {
+                                        const d = new Date(dateStr);
+                                        if (!isNaN(d.getTime())) {
+                                          const pad = (n: number) => String(n).padStart(2,'0');
+                                          dateStr = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+                                          const hr = pad(d.getHours());
+                                          const min = pad(d.getMinutes());
+                                          timeStr = (hr !== '00' || min !== '00') ? `${hr}:${min}` : undefined;
+                                        } else {
+                                          dateStr = dateStr.split('T')[0];
+                                          dateStr = dateStr.includes('-') ? dateStr.split('-').reverse().join('/') : dateStr;
+                                        }
+                                      } else {
+                                        dateStr = dateStr.split('T')[0];
+                                        dateStr = dateStr.includes('-') ? dateStr.split('-').reverse().join('/') : dateStr;
+                                      }
+                                    } else {
+                                      dateStr = dateStr.includes('-') ? dateStr.split('-').reverse().join('/') : dateStr;
+                                    }
+                                    
+                                    return timeStr ? `${dateStr} às ${timeStr}` : dateStr;
+                                  })()}
                                 </span>
                               ) : (
                                 <span className="opacity-50">Sem agenda</span>
@@ -627,7 +674,33 @@ export default function AdminPage() {
                             <td className="py-4 px-4 text-right">
                               <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button 
-                                  onClick={() => { setCurrentPatient(p); setIsEditing(true); setIsCreating(false); }}
+                                  onClick={() => {
+                                    let normalizedDate = p.appointment_date || null;
+                                    let normalizedTime = p.appointment_time || null;
+                                    
+                                    if (normalizedDate && normalizedDate.includes('T')) {
+                                      if (!normalizedTime) {
+                                        const d = new Date(normalizedDate);
+                                        if (!isNaN(d.getTime())) {
+                                          const pad = (n: number) => String(n).padStart(2,'0');
+                                          normalizedDate = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+                                          const hr = pad(d.getHours());
+                                          const min = pad(d.getMinutes());
+                                          if (hr !== '00' || min !== '00') {
+                                            normalizedTime = `${hr}:${min}`;
+                                          }
+                                        } else {
+                                          normalizedDate = normalizedDate.split('T')[0];
+                                        }
+                                      } else {
+                                        normalizedDate = normalizedDate.split('T')[0];
+                                      }
+                                    }
+
+                                    setCurrentPatient({...p, appointment_date: normalizedDate, appointment_time: normalizedTime}); 
+                                    setIsEditing(true); 
+                                    setIsCreating(false); 
+                                  }}
                                   className="p-2 border border-lux-border rounded-md hover:bg-white/10 hover:text-white transition-colors text-lux-text-s"
                                   title="Editar"
                                 >
