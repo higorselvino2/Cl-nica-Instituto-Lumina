@@ -153,14 +153,18 @@ export default function AdminPage() {
     
     try {
       const pass = password || sessionStorage.getItem('admin_pass') || '';
+      
+      const cleanDate = currentPatient.appointment_date === 'undefined' || currentPatient.appointment_date === 'null' || typeof currentPatient.appointment_date === 'string' && currentPatient.appointment_date.trim() === '' ? null : currentPatient.appointment_date;
+      const cleanTime = currentPatient.appointment_time === 'undefined' || currentPatient.appointment_time === 'null' || typeof currentPatient.appointment_time === 'string' && currentPatient.appointment_time.trim() === '' ? null : currentPatient.appointment_time;
+
       if (isEditing && currentPatient.id) {
         await updatePatientAction(pass, currentPatient.id, {
           name: currentPatient.name,
           phone: currentPatient.phone,
           email: currentPatient.email,
           notes: currentPatient.notes,
-          appointment_date: currentPatient.appointment_date || null,
-          appointment_time: currentPatient.appointment_time || null
+          appointment_date: cleanDate,
+          appointment_time: cleanTime
         });
         setCrudSuccess('Paciente atualizado com sucesso!');
       } else {
@@ -169,8 +173,8 @@ export default function AdminPage() {
           phone: currentPatient.phone,
           email: currentPatient.email,
           notes: currentPatient.notes,
-          appointment_date: currentPatient.appointment_date || null,
-          appointment_time: currentPatient.appointment_time || null
+          appointment_date: cleanDate,
+          appointment_time: cleanTime
         });
         setCrudSuccess('Paciente criado com sucesso!');
       }
@@ -638,11 +642,13 @@ export default function AdminPage() {
                               {p.appointment_date ? (
                                 <span className="bg-lux-accent/20 text-lux-accent px-2 py-1 rounded-md border border-lux-accent/30 whitespace-nowrap">
                                   {(() => {
-                                    let dateStr = p.appointment_date;
+                                    let dateStr = p.appointment_date || '';
                                     let timeStr = p.appointment_time;
                                     
-                                    if (dateStr.includes('T')) {
-                                      if (!timeStr) {
+                                    const isValidTimeStr = (t: any) => typeof t === 'string' && t.trim() !== '' && t !== 'undefined' && t !== 'null';
+                                    
+                                    if (dateStr && dateStr.includes('T')) {
+                                      if (!isValidTimeStr(timeStr)) {
                                         const d = new Date(dateStr);
                                         if (!isNaN(d.getTime())) {
                                           const pad = (n: number) => String(n).padStart(2,'0');
@@ -658,11 +664,11 @@ export default function AdminPage() {
                                         dateStr = dateStr.split('T')[0];
                                         dateStr = dateStr.includes('-') ? dateStr.split('-').reverse().join('/') : dateStr;
                                       }
-                                    } else {
+                                    } else if (dateStr) {
                                       dateStr = dateStr.includes('-') ? dateStr.split('-').reverse().join('/') : dateStr;
                                     }
                                     
-                                    return timeStr ? `${dateStr} às ${timeStr}` : dateStr;
+                                    return isValidTimeStr(timeStr) ? `${dateStr} às ${timeStr}` : dateStr;
                                   })()}
                                 </span>
                               ) : (
@@ -678,6 +684,9 @@ export default function AdminPage() {
                                   onClick={() => {
                                     let normalizedDate = p.appointment_date || null;
                                     let normalizedTime = p.appointment_time || null;
+                                    if (normalizedTime === 'undefined' || normalizedTime === 'null' || (typeof normalizedTime === 'string' && normalizedTime.trim() === '')) {
+                                      normalizedTime = null;
+                                    }
                                     
                                     if (normalizedDate && normalizedDate.includes('T')) {
                                       if (!normalizedTime) {
