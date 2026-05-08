@@ -65,6 +65,7 @@ export default function AdminPage() {
         fetchData();
       }, 0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -604,7 +605,7 @@ export default function AdminPage() {
                                 <li>email (text, nullable)</li>
                                 <li>notes (text, nullable)</li>
                                 <li>appointment_date (text ou date, nullable)</li>
-                                <li>appointment_time (text, nullable) - Ex: "14:00"</li>
+                                <li>appointment_time (text, nullable) - Ex: &quot;14:00&quot;</li>
                                 <li>date (timestamptz)</li>
                               </ul>
                               <p className="mt-2 text-yellow-500/80">
